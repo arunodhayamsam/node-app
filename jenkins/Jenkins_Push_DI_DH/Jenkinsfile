@@ -1,0 +1,53 @@
+pipeline {
+   agent {label 'testnode'} 
+
+   environment {
+     registry= '26011998/jenkins-node'
+     // Dockerhub credentials stored in jenkins credentials with id of 'dockerhub'
+     registryCredential= 'dockerhub'
+   }
+
+   stages {
+     stage('Clone Repo') {
+       steps {
+        git branch: 'dev', url: 'https://github.com/arunodhayamsam/node-app.git'
+       }
+     }
+
+     stage('Build docker image') {
+       steps {
+         script {
+            dockerImage= docker.build registry + ":$BUILD_NUMBER"
+         }
+       }
+     }
+
+     stage('Deploy docker image to DockerHub') {
+       steps {
+          script {
+            docker.withRegistry('', registryCredential) {
+            dockerImage.push() 
+           } 
+         }
+       }
+     }
+
+     stage('Deploy docker container') {
+       steps {
+        sh "docker run -d --name nodetest -p 8081:8081 26011998/jenkins-node:$BUILD_NUMBER"
+       }
+     }
+       
+     stage('Clean') {
+       steps{
+         sh "docker rmi --force $registry:$BUILD_NUMBER"
+       }
+     }
+
+     stage('Logout') {
+       steps {
+         sh "docker logout"
+       }
+     }
+   }   
+}  
