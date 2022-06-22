@@ -8,9 +8,17 @@ pipeline {
    }
 
    stages {
+     stage('Remove existing container') {
+       steps {
+        script {
+          sh 'docker rm -f nodetest'
+        }
+       }
+     }
+
      stage('Clone Repo') {
        steps {
-        git branch: 'dev', url: 'https://github.com/arunodhayamsam/node-app.git'
+        git branch: 'main', url: 'https://github.com/arunodhayamsam/node-app.git'
        }
      }
 
