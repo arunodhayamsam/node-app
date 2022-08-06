@@ -10,6 +10,8 @@ on:
   pull_request:
     branches: [ "main" ]
 
+  
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -50,4 +52,14 @@ jobs:
 
       - name: Login ECR
         uses: aws-actions/amazon-ecr-login@v1
-        id: login-ecr    
+        id: login-ecr   
+
+
+      - name: Build docker Image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: node-app 
+          TAG: $(echo ${{ github.sha }} | cut -c 1-8)
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$TAG .
+          docker push $REGISTRY/$REPOSITORY:$TAG  
