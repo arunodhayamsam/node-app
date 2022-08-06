@@ -59,7 +59,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: node-app 
-          TAG: $(echo ${{ github.sha }} | cut -c 1-8)
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$TAG .
-          docker push $REGISTRY/$REPOSITORY:$TAG  
+          docker build -t $REGISTRY/$REPOSITORY:IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:IMAGE_TAG  
