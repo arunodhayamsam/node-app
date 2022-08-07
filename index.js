@@ -6,6 +6,6 @@ app.get('/', (req,res) => {
     res.send("Hello World from dev!")
 });
 
-app.listen(8080,() => {
+app.listen(80,() => {
     console.log("Server started")
 });
