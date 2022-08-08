@@ -68,5 +68,5 @@ jobs:
         run: |
          
           aws eks --region us-east-1 update-kubeconfig --name basic-cluster 
-          kubectl apply -f deployment.yml
+          kubectl delete -f deployment.yml
             
