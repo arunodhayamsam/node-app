@@ -54,7 +54,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         id: login-ecr   
 
-
       - name: Build docker Image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -63,10 +62,7 @@ jobs:
         run: |
           docker build -t $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }} .
           docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}  
-          echo "$REPOSITORY"
-          DOCKER=$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
-          echo "$DOCKER"
-
+          
       - name: Deploy the application
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -75,5 +71,7 @@ jobs:
         run: |
           DOCKER=$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
           sed -i 's@CONTAINER_IMAGE@'"$DOCKER"'@' deployment.yml
-          aws eks --region us-east-1 update-kubeconfig --name basic-cluster 
+          echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
           kubectl apply -f deployment.yml
+          
