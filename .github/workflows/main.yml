@@ -61,13 +61,12 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
-          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}  
+          docker build -t $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }} .
+          docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}  
 
       - name: Deploy the application
         run: |
-          sed -i 's@CONTAINER_IMAGE@'"${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}"'@' deployment.yml
-          echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > kubeconfig.yaml
-          export KUBECONFIG=kubeconfig.yaml
+          sed -i 's@CONTAINER_IMAGE@'"$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}"'@' deployment.yml
+          aws eks --region us-east-1 update-kubeconfig --name basic-cluster 
           kubectl apply -f deployment.yml
             
