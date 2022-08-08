@@ -71,7 +71,6 @@ jobs:
         run: |
           DOCKER=$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
           sed -i 's@CONTAINER_IMAGE@'"$DOCKER"'@' deployment.yml
-          echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > kubeconfig.yaml
-          export KUBECONFIG=kubeconfig.yaml
-          kubectl apply -f deployment.yml
+          echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > .kube/kube.config
+          kubectl --kubeconfig .kube/kube.config apply -f deployment.yml
           
