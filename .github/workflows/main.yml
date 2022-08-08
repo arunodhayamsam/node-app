@@ -66,9 +66,9 @@ jobs:
 
       - name: Deploy the application
         run: |
-          echo $REPOSITORY
+          echo "$REPOSITORY"
           DOCKER=$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
-          echo $DOCKER
+          echo "$DOCKER"
         #  aws eks --region us-east-1 update-kubeconfig --name basic-cluster 
         #  kubectl delete -f deployment.yml
             
