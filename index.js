@@ -3,9 +3,9 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req,res) => {
-    res.send("Hello World from dev!")
+    res.send("Hello World from dev and I am from the Kubectl github action!")
 });
 
-app.listen(8080,() => {
+app.listen(80,() => {
     console.log("Server started")
 });
