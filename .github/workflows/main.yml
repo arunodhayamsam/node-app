@@ -62,6 +62,8 @@ jobs:
           cd $HOME/.kube/
           touch config
           echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > $HOME/.kube/config
-          cat $HOME/.kube/config
+          ls -la
+#          cd /home/runner/.kube
+#          ls
 #          kubectl apply -f deployment.yml
           
