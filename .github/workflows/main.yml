@@ -12,10 +12,6 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-#permissions:
-#  id-token: write
-#  contents: read 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
@@ -26,12 +22,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
-     # - name: configure aws credentials
-     #   uses: aws-actions/configure-aws-credentials@v1
-     #   with:
-     #     role-to-assume: arn:aws:iam::676440373575:role/Github_Oidc
-     #     aws-region: us-east-1
 
       - name: Install Kubectl
         uses: azure/setup-kubectl@v3   
@@ -60,10 +50,6 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
           
       - name: Deploy the application
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::676440373575:role/Github_Oidc
-          aws-region: us-east-1
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: node-app 
@@ -77,5 +63,5 @@ jobs:
           touch config
           echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > $HOME/.kube/config
           cat $HOME/.kube/config
-          kubectl apply -f deployment.yml
+#          kubectl apply -f deployment.yml
           
