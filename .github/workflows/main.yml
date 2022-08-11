@@ -59,7 +59,7 @@ jobs:
           sed -i 's@CONTAINER_IMAGE@'"$DOCKER"'@' deployment.yml
           echo $HOME
           mkdir $HOME/.kube/
-          cd mkdir $HOME/.kube/
+          cd $HOME/.kube/
           touch config
           echo ${{ secrets.KUBE_CONFIG_DATA_STAGING }} | base64 --decode > $HOME/.kube/config
           cat $HOME/.kube/config
