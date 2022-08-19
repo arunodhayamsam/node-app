@@ -46,8 +46,9 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }} .
-          docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
+
+           docker build -t localbuild/testimage:latest .
+           docker push localbuild/testimage:latest
       - name: Scan the docker vulnerbalities
         uses: anchore/scan-action@v3
         env:
@@ -55,7 +56,7 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         with:
-          image: "$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}"
+          image: "localbuild/testimage:latest"
 
       - name: Configure the deployment file
         env:
