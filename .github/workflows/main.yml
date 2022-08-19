@@ -48,7 +48,7 @@ jobs:
         run: |
 
            docker build -t localbuild/testimage:latest .
-           docker push localbuild/testimage:latest
+           
       - name: Scan the docker vulnerbalities
         uses: anchore/scan-action@v3
         env:
