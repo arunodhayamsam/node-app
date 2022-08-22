@@ -40,7 +40,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         id: login-ecr   
 
-      - name: Build docker Image and Push and scan the Vulnerbality
+      - name: Build docker Image 
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: node-app 
@@ -54,14 +54,15 @@ jobs:
         with:
           image-ref: 'node-app:${{ github.sha }}' 
       
-      - name: Build docker Image and Push and scan the Vulnerbality
+      - name: Build docker Image Push 
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker push node-app:${{ github.sha }}       
-          
+          docker tag node-app:${{ github.sha }} 593048217073.dkr.ecr.us-east-1.amazonaws.com/node-app:${{ github.sha }}      
+          docker push 593048217073.dkr.ecr.us-east-1.amazonaws.com/node-app:${{ github.sha }}
+
       - name: Configure the deployment file
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
