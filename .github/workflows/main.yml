@@ -60,7 +60,7 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker push docker.io/my-organization/my-app:${{ github.sha }}       
+          docker push $REPOSITORY:${{ github.sha }}       
           
       - name: Configure the deployment file
         env:
