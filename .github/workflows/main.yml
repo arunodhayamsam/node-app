@@ -46,22 +46,22 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker build -t node-app:${{ github.sha }} .
+          docker build -t node-app:${{ env.IMAGE_TAG }} .
 #          docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'node-app:${{ github.sha }}' 
+          image-ref: 'node-app:${{ env.IMAGE_TAG }}' 
       
       - name: Build docker Image Push 
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: node-app 
+          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+          REGION: ${{ secrets.REGION }}
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker tag node-app:${{ github.sha }} 593048217073.dkr.ecr.us-east-1.amazonaws.com/node-app:${{ github.sha }}      
-          docker push 593048217073.dkr.ecr.us-east-1.amazonaws.com/node-app:${{ github.sha }}
+          docker tag node-app:${{ env.IMAGE_TAG }} $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/node-app:${{ env.IMAGE_TAG }}      
+          docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/node-app:${{ env.IMAGE_TAG }}
 
       - name: Configure the deployment file
         env:
