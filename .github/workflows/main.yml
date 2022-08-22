@@ -46,13 +46,13 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+          docker build -t node-app:${{ github.sha }} .
 #          docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}' 
+          image-ref: 'node-app:${{ github.sha }}' 
       
       - name: Build docker Image and Push and scan the Vulnerbality
         env:
@@ -60,7 +60,7 @@ jobs:
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
         run: |
-          docker push $REPOSITORY:${{ github.sha }}       
+          docker push node-app:${{ github.sha }}       
           
       - name: Configure the deployment file
         env:
