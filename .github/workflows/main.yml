@@ -55,8 +55,10 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: node-app 
           IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
+        run:
+          DOCKER=$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}  
         with:
-          image-ref: '$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}'    
+          image-ref: '$DOCKER'    
           
       - name: Configure the deployment file
         env:
