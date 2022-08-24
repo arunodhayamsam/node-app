@@ -23,12 +23,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-#      - name: Install Kubectl
-#        uses: azure/setup-kubectl@v3   
-#        with:
-#          version: 'v1.21.3' 
-#        id: install  
-
       - name: Configure aws creds
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -37,36 +31,53 @@ jobs:
           aws-region: us-east-1
 
       - name: Login ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1  
 
-      - name: Build docker Image 
-        run: |
-          docker build -t node-app:${{ github.sha }} .
-#          docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
+      - name: Build docker image
+        env: 
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}} 
+          REPOSITORY: node-app 
+          IMAGE: ${{ github.sha }}
+        run: docker build -t $REGISTRY/$REPOSITORY:${{ github.sha }}  
 
-      - name: Run Trivy vulnerability scanner
+      - name: Trivy vulnerability
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}} 
+          REPOSITORY: node-app 
+          IMAGE: ${{ github.sha }}
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'node-app:${{ github.sha }}' 
-      
-      - name: Build docker Image Push 
-        env:
-          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
-          REGION: ${{ secrets.REGION }}
-          IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
-        run: |
-          docker tag node-app:${{ github.sha }} $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/node-app:${{ env.IMAGE_TAG }}      
-          docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/node-app:${{ env.IMAGE_TAG }}
-
-      - name: Configure the deployment file
-        run: |
-          DOCKER=node-app:${{ github.sha }}
-          sed -i 's@CONTAINER_IMAGE@'"$DOCKER"'@' deployment.yml
-      
-      - name: Deploy the application     
-        uses: tale/kubectl-action@v1
-        with:
-          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
-      - run: |
-          kubectl get node    
-          kubectl apply -f deployment.yml
+          image-ref: $REGISTRY/$REPOSITORY:${{ github.sha }}
+#      - name: Build docker Image 
+#        run: |
+#          docker build -t node-app:${{ github.sha }} .
+#          docker push $REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}
+#
+#      - name: Run Trivy vulnerability scanner
+#        uses: aquasecurity/trivy-action@master
+#        with:
+#          image-ref: 'node-app:${{ github.sha }}' 
+#      
+#      - name: Build docker Image Push 
+#        env:
+#          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+#          REGION: ${{ secrets.REGION }}
+#          IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
+#        run: |
+#          docker tag node-app:${{ github.sha }} $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/node-app:${{ env.IMAGE_TAG }}      
+#          docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/node-app:${{ env.IMAGE_TAG }}
+#
+#      - name: Configure the deployment file
+#        run: |
+#          DOCKER=node-app:${{ github.sha }}
+#          sed -i 's@CONTAINER_IMAGE@'"$DOCKER"'@' deployment.yml
+#      
+#      - name: Deploy the application     
+#        uses: tale/kubectl-action@v1
+#        with:
+#          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+#      - run: |
+#          kubectl get node    
+#          kubectl apply -f deployment.yml
+#   
