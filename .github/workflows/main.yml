@@ -39,7 +39,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry}} 
           REPOSITORY: node-app 
           IMAGE: ${{ github.sha }}
-        run: docker build -t $REGISTRY/$REPOSITORY:${{ github.sha }}  
+        run: docker build -t $REGISTRY/$REPOSITORY:${{ github.sha }} . 
 
       - name: Trivy vulnerability
         env:
