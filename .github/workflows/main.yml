@@ -40,19 +40,19 @@ jobs:
       - name: Build docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry}}
-        run: docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ steps.meta.outputs.version }} . 
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }} . 
 
       - name: Trivy vulnerability
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry}}
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ steps.meta.outputs.version }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }}
 
       - name: Push the Docker Image
         env: 
           REGISTRY: ${{ steps.login-ecr.outputs.registry}}
-        run: docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ steps.meta.outputs.version }}      
+        run: docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }}      
 #      - name: Build docker Image 
 #        run: |
 #          docker build -t node-app:${{ github.sha }} .
