@@ -12,8 +12,7 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-env: 
-  REGISTRY: ${{ steps.login-ecr.outputs.registry}} 
+env:  
   REPOSITORY: node-app 
   IMAGE: ${{ github.sha }}
 jobs:
@@ -39,9 +38,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1  
 
       - name: Build docker image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}}
         run: docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }} . 
 
       - name: Trivy vulnerability
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}}
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }}
