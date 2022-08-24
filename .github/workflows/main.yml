@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 env:  
   REPOSITORY: node-app 
-  IMAGE: ${{ github.sha }}
+  IMAGE_TAG: $(echo ${{ github.sha }} | head -c 8)
 jobs:
   # This workflow contains a single job called "build"
   build:
@@ -40,14 +40,19 @@ jobs:
       - name: Build docker image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry}}
-        run: docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }} . 
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} . 
 
       - name: Trivy vulnerability
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry}}
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ github.sha }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      - name: Push the Docker Image
+        env: 
+          REGISTRY: ${{ steps.login-ecr.outputs.registry}}
+        run: docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}      
 #      - name: Build docker Image 
 #        run: |
 #          docker build -t node-app:${{ github.sha }} .
