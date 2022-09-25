@@ -31,10 +31,10 @@ timestamps {
     
     stage('Update ECS Service') {
        withEnv(["DOCKET_IMAGE=831466106657.dkr.ecr.us-east-1.amazonaws.com/node-app:$BUILD_NUMBER"]) {
-         echo "hello ${env.DOCKET_IMAGE}"
+         // echo ${DOCKET_IMAGE}
          sh '''#!/bin/bash
             ls -la
-            sed -i -e 's/DOCKER_CONTAINER/${env.DOCKET_IMAGE}/g' task-definition.json
+            sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
             cat task-definition.json
             '''
     
