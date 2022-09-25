@@ -17,7 +17,7 @@ timestamps {
           sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
 
   // configure registry
-         docker.withRegistry('https://831466106657.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
+         docker.withRegistry('https://507180652719.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
 
     // build image
          def customImage = docker.build("node-app:${env.BUILD_ID}")
@@ -30,15 +30,12 @@ timestamps {
     }
     
     stage('Update ECS Service') {
-       withEnv(["DOCKET_IMAGE=831466106657.dkr.ecr.us-east-1.amazonaws.com/node-app:$BUILD_NUMBER"]) {
          // echo ${DOCKET_IMAGE}
          sh '''#!/bin/bash
-            ls -la
             sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
             cat task-definition.json
             '''
-    
-     }
+     
    
    }
   }  
