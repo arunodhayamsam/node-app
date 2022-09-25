@@ -1,61 +1,46 @@
-pipeline {
-   agent {label 'testnode'} 
+timestamps {
 
-   environment {
-     registry= '26011998/jenkins-node'
-     // Dockerhub credentials stored in jenkins credentials with id of 'dockerhub'
-     registryCredential= 'dockerhub'
+  node('my-host') {
+  // Start Stages
+    stage('Clone') {
+      checkout([$class: 'GitSCM',
+                  branches: [[name: 'dev']],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/arunodhayamsam/node-app.git']]
+                ])    
+    }  
+    stage('Dockebuild and Push') {
+        withEnv(["DISABLE_AUTH=new"]) {
+         echo "hello ${env.DISABLE_AUTH}"    
+          sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
+
+  // configure registry
+         docker.withRegistry('https://831466106657.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
+
+    // build image
+         def customImage = docker.build("node-app:${env.BUILD_ID}")
+
+    // push image
+         def taskdef = customImage.push()
+         echo "hello ${env.DISABLE_AUTH}"
+         } 
+      }
+    }
+    
+    stage('Update ECS Service') {
+       withEnv(["DOCKET_IMAGE=831466106657.dkr.ecr.us-east-1.amazonaws.com/node-app:$BUILD_NUMBER"]) {
+         echo "hello ${env.DOCKET_IMAGE}"
+         sh '''#!/bin/bash
+            ls -la
+            sed -i -e 's/DOCKER_CONTAINER/${env.DOCKET_IMAGE}/g' task-definition.json
+            cat task-definition.json
+            '''
+    
+     }
+   
    }
+  }  
+}
 
-   stages {
-     stage('Remove existing container') {
-       steps {
-        script {
-          sh 'docker rm -f nodetest'
-        }
-       }
-     }
-
-     stage('Clone Repo') {
-       steps {
-        git branch: 'main', url: 'https://github.com/arunodhayamsam/node-app.git'
-       }
-     }
-
-     stage('Build docker image') {
-       steps {
-         script {
-            dockerImage= docker.build registry + ":$BUILD_NUMBER"
-         }
-       }
-     }
-
-     stage('Deploy docker image to DockerHub') {
-       steps {
-          script {
-            docker.withRegistry('', registryCredential) {
-            dockerImage.push() 
-           } 
-         }
-       }
-     }
-
-     stage('Deploy docker container') {
-       steps {
-        sh "docker run -d --name nodetest -p 8081:8081 26011998/jenkins-node:$BUILD_NUMBER"
-       }
-     }
-       
-     stage('Clean') {
-       steps{
-         sh "docker rmi --force $registry:$BUILD_NUMBER"
-       }
-     }
-
-     stage('Logout') {
-       steps {
-         sh "docker logout"
-       }
-     }
-   }   
-}  
