@@ -1,6 +1,6 @@
 {
   "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::395367784364:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::507180652719:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "dnsSearchDomains": null,
@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "/ecs/jenkins-ecs",
+          "awslogs-group": "/ecs/ecs-deploy",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -34,7 +34,7 @@
       "secrets": null,
       "dockerSecurityOptions": null,
       "memory": null,
-      "memoryReservation": 300,
+      "memoryReservation": 500,
       "volumesFrom": [],
       "stopTimeout": null,
       "image": "507180652719.dkr.ecr.us-east-1.amazonaws.com/node-app:IMG_TAG",
@@ -54,7 +54,7 @@
       "dockerLabels": null,
       "systemControls": null,
       "privileged": null,
-      "name": "node-app"
+      "name": "ecs-node"
     }
   ],
   "placementConstraints": [],
@@ -64,8 +64,8 @@
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:395367784364:task-definition/jenkins-ecs:1",
-  "family": "jenkins-ecs",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:507180652719:task-definition/ecs-deploy:1",
+  "family": "ecs-deploy",
   "requiresAttributes": [
     {
       "targetId": null,
@@ -125,7 +125,7 @@
     "operatingSystemFamily": "LINUX",
     "cpuArchitecture": null
   },
-  "cpu": "1024",
+  "cpu": "512",
   "revision": 1,
   "status": "ACTIVE",
   "inferenceAccelerators": null,

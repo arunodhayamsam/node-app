@@ -14,17 +14,11 @@ timestamps {
     stage('Dockebuild and Push') {
         withEnv(["DISABLE_AUTH=new"]) {
          echo "hello ${env.DISABLE_AUTH}"    
-          sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
-
-  // configure registry
-         docker.withRegistry('https://507180652719.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
-
-    // build image
+         sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
+         docker.withRegistry('https://051367950628.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
          def customImage = docker.build("node-app:${env.BUILD_ID}")
+         customImage.push()
 
-    // push image
-         def taskdef = customImage.push()
-         echo "hello ${env.DISABLE_AUTH}"
          } 
       }
     }
@@ -35,9 +29,8 @@ timestamps {
             sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
             cat task-definition.json
             '''
-     
    
-   }
+    }
   }  
 }
 
