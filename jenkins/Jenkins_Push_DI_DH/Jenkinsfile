@@ -4,22 +4,19 @@ timestamps {
   // Start Stages
     stage('Clone') {
       checkout([$class: 'GitSCM',
-                  branches: [[name: 'dev']],
+                  branches: [[name: 'feature-tick_012']],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [],
                   submoduleCfg: [],
-                  userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/arunodhayamsam/node-app.git']]
+                  userRemoteConfigs: [[credentialsId: 'github', url: 'https://git-codecommit.us-east-2.amazonaws.com/v1/repos/Ticket_Mgt_Backend']]
                 ])    
     }  
-    stage('Dockebuild and Push') {
-        withEnv(["DISABLE_AUTH=new"]) {
-         echo "hello ${env.DISABLE_AUTH}"    
+    stage('Dockebuild and Push') {    
          sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
          docker.withRegistry('https://051367950628.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
          def customImage = docker.build("node-app:${env.BUILD_ID}")
          customImage.push()
-
-         } 
+          
       }
     }
     
@@ -29,7 +26,9 @@ timestamps {
             sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
             cat task-definition.json
             '''
-   
+          task definition
+
+          ecs service update
     }
   }  
 }
