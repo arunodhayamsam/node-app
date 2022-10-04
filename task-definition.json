@@ -2,9 +2,9 @@
   "family": FAMILY,
   "containerDefinitions": [
       {
-          "image": "REPOSITORY_URI:BUILD_NUMBER",
+          "image": "939600059814.dkr.ecr.us-east-1.amazonaws.com/node-app:IMG_TAG",
           "name": NAME,
-    "essential": true,
+          "essential": true,
           "portMappings": [
               {
                   "containerPort": 80,

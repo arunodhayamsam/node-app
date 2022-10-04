@@ -1,6 +1,7 @@
 timestamps {
 
   node('my-host') {
+    withEnv(['node=test']) {
   // Start Stages
     stage('Clone') {
       checkout([$class: 'GitSCM',
@@ -13,7 +14,7 @@ timestamps {
     }  
     stage('Dockebuild and Push') {    
          sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
-         docker.withRegistry('https://051367950628.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
+         docker.withRegistry('939600059814.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
          def customImage = docker.build("node-app:${env.BUILD_ID}")
          customImage.push()
           
@@ -21,15 +22,14 @@ timestamps {
     }
     
     stage('Update ECS Service') {
-         // echo ${DOCKET_IMAGE}
-         sh '''#!/bin/bash
+           echo $node
+           sh '''#!/bin/bash
             sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
             cat task-definition.json
             '''
-          task definition
-
-          ecs service update
-    }
-  }  
+         //def role_arn = sh (aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "${AWS_DEFAULT_REGION}" | jq .taskDefinition.executionRoleArn)
+     }
+   }  
+ }
 }
 
