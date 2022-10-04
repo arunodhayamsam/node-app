@@ -2,7 +2,7 @@
   "family": FAMILY,
   "containerDefinitions": [
       {
-          "image": "939600059814.dkr.ecr.us-east-1.amazonaws.com/node-app:IMG_TAG",
+          "image": "514474256068.dkr.ecr.us-east-1.amazonaws.com/node-app:IMG_TAG",
           "name": NAME,
           "essential": true,
           "portMappings": [
