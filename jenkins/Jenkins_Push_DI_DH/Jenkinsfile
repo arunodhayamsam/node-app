@@ -1,35 +1,53 @@
 timestamps {
-
-  node('my-host') {
-    withEnv(['node=test']) {
+  ansiColor('xterm') {
+    node('my-host') {
+      withEnv(['node=test', 'CLUSTER_NAME=node-app', 'SERVICE_NAME=node-app', 'TASK_DEFINITION_NAME=node-app', 'DESIRED_COUNT=1', 'AWS_DEFAULT_REGION=us-east-1', 'registryCredential=new-ecr']) {
   // Start Stages
-    stage('Clone') {
-      checkout([$class: 'GitSCM',
-                  branches: [[name: 'feature-tick_012']],
+        stage('Clone') {
+          checkout([$class: 'GitSCM',
+                  branches: [[name: 'dev']],
                   doGenerateSubmoduleConfigurations: false,
                   extensions: [],
                   submoduleCfg: [],
-                  userRemoteConfigs: [[credentialsId: 'github', url: 'https://git-codecommit.us-east-2.amazonaws.com/v1/repos/Ticket_Mgt_Backend']]
+                  userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/arunodhayamsam/node-app.git']]
                 ])    
-    }  
-    stage('Dockebuild and Push') {    
-         sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
-         docker.withRegistry('939600059814.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
-         def customImage = docker.build("node-app:${env.BUILD_ID}")
-         customImage.push()
-          
+        }  
+        stage('Dockebuild and Push') {    
+          sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
+          docker.withRegistry('http://939600059814.dkr.ecr.us-east-1.amazonaws.com/node-app', 'ecr:us-east-1:new-ecr') {
+          def customImage = docker.build("node-app:${env.BUILD_ID}")
+          customImage.push()    
+         }
+        }
+        stage('Update ECS Service') {
+          withAWS(credentials: "$registryCredential", region: "$AWS_DEFAULT_REGION") {  
+            sh '''
+              ROLE_ARN=`aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "${AWS_DEFAULT_REGION}" | jq .taskDefinition.executionRoleArn`
+              echo "ROLE_ARN= " $ROLE_ARN
+              
+              FAMILY=`aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "${AWS_DEFAULT_REGION}" | jq .taskDefinition.family`
+              echo "FAMILY= " $FAMILY
+              
+              NAME=`aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "${AWS_DEFAULT_REGION}" | jq .taskDefinition.containerDefinitions[].name`
+              echo "NAME= " $NAME
+              
+              sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
+              sed -i "s#REPOSITORY_URI#$REPOSITORY_URI#g" task-definition.json
+              sed -i "s#ROLE_ARN#$ROLE_ARN#g" task-definition.json
+              sed -i "s#FAMILY#$FAMILY#g" task-definition.json
+              sed -i "s#NAME#$NAME#g" task-definition.json
+              
+              
+              aws ecs register-task-definition --cli-input-json file://task-definition.json --region="${AWS_DEFAULT_REGION}"
+              
+              REVISION=`aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "${AWS_DEFAULT_REGION}" | jq .taskDefinition.revision`
+              echo "REVISION= " "${REVISION}"
+              aws ecs update-service --cluster "${CLUSTER_NAME}" --service "${SERVICE_NAME}" --task-definition "${TASK_DEFINITION_NAME}":"${REVISION}" --desired-count "${DESIRED_COUNT}"
+            '''  
+
+          }
+        }  
       }
     }
-    
-    stage('Update ECS Service') {
-           echo $node
-           sh '''#!/bin/bash
-            sed -i "s/IMG_TAG/${BUILD_NUMBER}/g" task-definition.json
-            cat task-definition.json
-            '''
-         //def role_arn = sh (aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "${AWS_DEFAULT_REGION}" | jq .taskDefinition.executionRoleArn)
-     }
-   }  
- }
+  }
 }
-
