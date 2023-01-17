@@ -12,4 +12,4 @@ images:
 - gcr.io/$PROJECT_ID/hello-cloud-run
 
 substitutions:
-   PROJECT_ID: gke-project-370204 
+   PROJECT_ID: playground-s-11-babe0e37  
