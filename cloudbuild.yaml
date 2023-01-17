@@ -11,5 +11,3 @@ steps:
 images:
 - gcr.io/$PROJECT_ID/hello-cloud-run
 
-substitutions:
-   PROJECT_ID: playground-s-11-babe0e37  
